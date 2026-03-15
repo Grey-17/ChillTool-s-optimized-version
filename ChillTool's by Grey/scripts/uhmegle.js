@@ -1,4 +1,4 @@
-    /*
+/*
     ===========================================
     Project: ChillTool's
     Autor: ChillSpot
@@ -73,6 +73,10 @@
         link.href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css";
         document.head.appendChild(link);
 
+        const chartScript = document.createElement("script");
+        chartScript.src = "https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js";
+        document.head.appendChild(chartScript);
+
         const CURRENT_VERSION = '3.9.6.1';
 
         function getPeopleCount() {
@@ -99,6 +103,11 @@
         function incrementSkipCount() {
             const count = getSkipCount() + 1;
             localStorage.setItem('skipCount', count.toString());
+            
+            // Aggiorna display se visibile
+            const skipDisplay = document.getElementById('skipCountStat');
+            if (skipDisplay) skipDisplay.textContent = count;
+            
             console.log('Skip count incremented to:', count);
             return count;
         }
@@ -307,6 +316,39 @@
                     1px -1px 0 #000,
                     -1px 1px 0 #000,
                     1px 1px 0 #000 !important;
+            }
+             .stats-filter-option {
+                transition: all 0.2s;
+            }
+            .stats-filter-option:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(77, 171, 247, 0.3);
+            }
+            #statsResultsModal canvas {
+                max-height: 300px;
+            }
+            .stats-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 15px;
+                margin-bottom: 30px;
+            }
+            .stat-card {
+                background: linear-gradient(145deg, #1a1a1a, #222);
+                border-radius: 10px;
+                padding: 15px;
+                text-align: center;
+                border-left: 4px solid #4dabf7;
+            }
+            .stat-number {
+                font-size: 28px;
+                font-weight: bold;
+                color: #4dabf7;
+            }
+            .stat-label {
+                color: #aaa;
+                font-size: 12px;
+                margin-top: 5px;
             }
         `;
         document.head.appendChild(style);
@@ -547,7 +589,7 @@
             settingsBtn.style.cursor = "pointer";
             settingsBtn.style.fontSize = isMobile() ? "16px" : "inherit";
             settingsBtn.title = translations[getLang()].settings;
-            settingsBtn.addEventListener("click", function() {
+           settingsBtn.addEventListener("click", function() {
                 showSettings();
             });
             
@@ -844,7 +886,7 @@
                 language: 'Language:',
                 whiteColorNotAllowed: 'White color is not allowed. Please choose a different color.',
                 close: 'Close',
-            download: 'Download',
+                download: 'Download',
                 history: 'History',
                 ban: 'Block User',
                 bannedUsers: 'Blocked Users List',
@@ -914,7 +956,26 @@
                 reviewTitle: "Enjoying ChillTool's?",
                 reviewBody: 'If you like it, please leave a 5-star review. It helps a lot!',
                 reviewLater: 'Maybe later',
-                reviewOk: 'OK'
+                reviewOk: 'OK',
+                buttonOn: 'ON',
+                buttonOff: 'OFF',
+                advancedStats: 'Graphical Statistics',
+                statsToday: 'Today',
+                statsWeek: 'This week',
+                statsMonth: 'This month',
+                statsAll: 'All time',
+                statsTotalMeetings: 'Total Meetings',
+                statsUniqueIPs: 'Unique IPs',
+                statsDifferentCountries: 'Different Countries',
+                statsTopCountry: 'Top Country Meetings',
+                statsTopCountries: 'Top 10 Countries Met',
+                statsHours: 'Peak Usage Hours',
+                statsHeatmap: 'Weekly Heatmap',
+                statsTopCities: 'Top 10 Cities',
+                statsCity: 'City',
+                statsMeetings: 'Meetings',
+                statsNoData: 'No data available',
+                statsSelectPeriod: 'Select the period to analyze:'
             },
             zh: {
                 showIpDisplay: '显示IP',
@@ -936,7 +997,7 @@
                 ip: 'IP',
                 city: '城市',
                 region: '地区',
-                country: '国家',    
+                country: '国家',
                 coordinates: '坐标',
                 time: '时间',
                 photoNotAvailable: '照片不再可用',
@@ -992,7 +1053,27 @@
                 reviewTitle: '喜欢 ChillTool’s 吗？',
                 reviewBody: '如果您喜欢，请给我们一个五星好评，这对我们非常有帮助！',
                 reviewLater: '稍后再说',
-                reviewOk: '好的'
+                reviewOk: '好的',
+                download: '下载',
+                buttonOn: '开',
+                buttonOff: '关',
+                advancedStats: '图形统计',
+                statsToday: '今天',
+                statsWeek: '本周',
+                statsMonth: '本月',
+                statsAll: '全部',
+                statsTotalMeetings: '总会议',
+                statsUniqueIPs: '独立IP',
+                statsDifferentCountries: '不同国家',
+                statsTopCountry: '热门国家会议',
+                statsTopCountries: '前10名国家',
+                statsHours: '高峰使用时段',
+                statsHeatmap: '周热图',
+                statsTopCities: '前10名城市',
+                statsCity: '城市',
+                statsMeetings: '会议',
+                statsNoData: '无可用数据',
+                statsSelectPeriod: '选择要分析的时期:'
             },
             hi: {
                 showIpDisplay: 'आईपी डिस्प्ले बॉक्स दिखाएं',
@@ -1070,7 +1151,27 @@
                 reviewTitle: 'ChillTool’s पसंद आ रहा है?',
                 reviewBody: 'अगर आपको पसंद है, तो कृपया 5‑स्टार रिव्यू दें। यह बहुत मदद करता है!',
                 reviewLater: 'शायद बाद में',
-                reviewOk: 'ठीक है'
+                reviewOk: 'ठीक है',
+                download: 'डाउनलोड',
+                buttonOn: 'चालू',
+                buttonOff: 'बंद',
+                advancedStats: 'ग्राफिकल सांख्यिकी',
+                statsToday: 'आज',
+                statsWeek: 'इस सप्ताह',
+                statsMonth: 'इस महीने',
+                statsAll: 'सब समय',
+                statsTotalMeetings: 'कुल मीटिंग',
+                statsUniqueIPs: 'अद्वितीय आईपी',
+                statsDifferentCountries: 'विभिन्न देश',
+                statsTopCountry: 'शीर्ष देश मीटिंग',
+                statsTopCountries: 'शीर्ष 10 देश मिले',
+                statsHours: 'पीक उपयोग घंटे',
+                statsHeatmap: 'साप्ताहिक हीटमैप',
+                statsTopCities: 'शीर्ष 10 शहर',
+                statsCity: 'शहर',
+                statsMeetings: 'मीटिंग',
+                statsNoData: 'कोई डेटा उपलब्ध नहीं',
+                statsSelectPeriod: 'विश्लेषण के लिए अवधि चुनें:'
             },
             es: {
                 settings: 'Configuración',
@@ -1084,8 +1185,6 @@
                 history: 'Historial',
                 ban: 'Bloquear usuario',
                 bannedUsers: 'Usuarios bloqueados',
-                enterIpToBlock: 'Ingresar IP para bloquear',
-                blockIp: 'Bloquear IP',
                 enterIpToBlock: 'Ingresar IP para bloquear',
                 blockIp: 'Bloquear IP',
                 restarting: 'Reiniciando conexión...',
@@ -1111,8 +1210,6 @@
                 textModeNotSupported: '¡El modo texto no es compatible!',
                 betaWelcome: '¡Bienvenido a bordo, tester beta!',
                 outdatedExtension: '¡La extensión está desactualizada!',
-                apply: 'Aplicar',
-                color: 'Color',
                 userStyles: 'UserStyles',
                 userStylesDesc: 'Personaliza el aspecto del sitio y la extensión con CSS personalizado',
                 customCSS: 'CSS Personalizado',
@@ -1148,12 +1245,31 @@
                 peopleEncountered: 'Personas Encontradas',
                 skips: 'Saltos',
                 close: 'Cerrar',
-                enterIpToBlock: 'Ingresar IP para bloquear',
-                blockIp: 'Bloquear IP',
                 reviewTitle: '¿Te gusta ChillTool’s?',
                 reviewBody: 'Si te gusta, por favor deja una reseña de 5 estrellas. ¡Nos ayuda mucho!',
                 reviewLater: 'Quizás más tarde',
-                reviewOk: 'OK'
+                reviewOk: 'OK',
+                showIpDisplay: 'Mostrar IP',
+                download: 'Descargar',
+                buttonOn: 'ON',
+                buttonOff: 'OFF',
+                advancedStats: 'Estadísticas Gráficas',
+                statsToday: 'Hoy',
+                statsWeek: 'Esta semana',
+                statsMonth: 'Este mes',
+                statsAll: 'Todo',
+                statsTotalMeetings: 'Total Encuentros',
+                statsUniqueIPs: 'IP Únicas',
+                statsDifferentCountries: 'Países Diferentes',
+                statsTopCountry: 'Encuentros Top País',
+                statsTopCountries: 'Top 10 Países Encontrados',
+                statsHours: 'Horas de Mayor Uso',
+                statsHeatmap: 'Mapa de Calor Semanal',
+                statsTopCities: 'Top 10 Ciudades',
+                statsCity: 'Ciudad',
+                statsMeetings: 'Encuentros',
+                statsNoData: 'No hay datos disponibles',
+                statsSelectPeriod: 'Selecciona el período a analizar:'
             },
             ar: {
                 settings: 'الإعدادات',
@@ -1231,7 +1347,27 @@
                 reviewTitle: 'هل تستمتع بـ ChillTool’s؟',
                 reviewBody: 'إذا أعجبك، يرجى ترك تقييم 5 نجوم. هذا يساعدنا كثيرًا!',
                 reviewLater: 'ربما لاحقًا',
-                reviewOk: 'موافق'
+                reviewOk: 'موافق',
+                download: 'تحميل',
+                buttonOn: 'ON',
+                buttonOff: 'OFF',
+                advancedStats: 'إحصائيات رسومية',
+                statsToday: 'اليوم',
+                statsWeek: 'هذا الأسبوع',
+                statsMonth: 'هذا الشهر',
+                statsAll: 'كل الوقت',
+                statsTotalMeetings: 'إجمالي اللقاءات',
+                statsUniqueIPs: 'عناوين IP فريدة',
+                statsDifferentCountries: 'بلدان مختلفة',
+                statsTopCountry: 'أعلى بلد لقاءات',
+                statsTopCountries: 'أفضل 10 دول تمت مقابلتها',
+                statsHours: 'ساعات الذروة',
+                statsHeatmap: 'خريطة الحرارة الأسبوعية',
+                statsTopCities: 'أفضل 10 مدن',
+                statsCity: 'مدينة',
+                statsMeetings: 'لقاءات',
+                statsNoData: 'لا توجد بيانات متاحة',
+                statsSelectPeriod: 'حدد الفترة للتحليل:'
             },
             fr: {
                 settings: 'Paramètres',
@@ -1309,7 +1445,27 @@
                 reviewTitle: 'Vous appréciez ChillTool’s ?',
                 reviewBody: 'Si vous l’aimez, merci de laisser un avis 5 étoiles. Ça nous aide beaucoup !',
                 reviewLater: 'Plus tard',
-                reviewOk: 'OK'
+                reviewOk: 'OK',
+                download: 'Télécharger',
+                buttonOn: 'ON',
+                buttonOff: 'OFF',
+                advancedStats: 'Statistiques Graphiques',
+                statsToday: 'Aujourd\'hui',
+                statsWeek: 'Cette semaine',
+                statsMonth: 'Ce mois',
+                statsAll: 'Tout',
+                statsTotalMeetings: 'Total Rencontres',
+                statsUniqueIPs: 'IP Uniques',
+                statsDifferentCountries: 'Pays Différents',
+                statsTopCountry: 'Rencontres Top Pays',
+                statsTopCountries: 'Top 10 Pays Rencontrés',
+                statsHours: 'Heures d\'utilisation',
+                statsHeatmap: 'Heatmap Hebdomadaire',
+                statsTopCities: 'Top 10 Villes',
+                statsCity: 'Ville',
+                statsMeetings: 'Rencontres',
+                statsNoData: 'Aucune donnée disponible',
+                statsSelectPeriod: 'Sélectionnez la période à analyser:'
             },
             bn: {
                 settings: 'সেটিংস',
@@ -1353,8 +1509,6 @@
                 textModeNotSupported: 'টেক্সট মোড সমর্থিত নয়!',
                 betaWelcome: 'স্বাগতম, বেটা পরীক্ষক!',
                 outdatedExtension: 'এক্সটেনশনটি পুরোনো হয়ে গেছে!',
-                apply: 'প্রয়োগ করুন',
-                color: 'রঙ',
                 userStyles: 'ব্যবহারকারী শৈলী',
                 userStylesDesc: 'কাস্টম CSS দিয়ে সাইট এবং এক্সটেনশনের চেহারা কাস্টমাইজ করুন',
                 customCSS: 'কাস্টম CSS',
@@ -1377,27 +1531,38 @@
                 selectCountries: 'দেশ নির্বাচন করুন',
                 noCountriesSelected: 'কোনো দেশ নির্বাচন করা হয়নি - সব দেশ অনুমোদিত',
                 countriesSelected: 'দেশ নির্বাচিত',
-                peopleEncountered: 'মিলিত লোক',
                 saveButtonChoice: 'বোতাম পছন্দ সংরক্ষণ করুন',
                 persistent: 'স্থায়ী',
                 persistentTooltip: 'বাটনে করা শেষ পছন্দটি সংরক্ষণ করুন',
                 showIp: 'আইপি দেখান',
                 showIpTooltip: 'আইপি বক্স দেখান/লুকান',
-                statisticsTitle: 'ব্যবহার পরিসংখ্যান',
-                statistics: 'পরিসংখ্যান',
-                donate: 'দান করুন',
-                totalTimeSpent: 'মোট অতিবাহিত সময়',
-                peopleEncountered: 'লোকের সাথে দেখা হয়েছে',
-                skips: 'স্কিপ',
-                close: 'বন্ধ',
                 enterIpToBlock: 'ব্লক করতে আইপি লিখুন',
                 blockIp: 'আইপি ব্লক করুন',
                 reviewTitle: 'ChillTool’s কি ভালো লাগছে?',
                 reviewBody: 'ভালো লাগলে অনুগ্রহ করে ৫‑তারকার রিভিউ দিন। এটি আমাদের খুব সাহায্য করে!',
                 reviewLater: 'পরে হয়তো',
-                reviewOk: 'ঠিক আছে'
+                reviewOk: 'ঠিক আছে',
+                download: 'ডাউনলোড',
+                buttonOn: 'চালু',
+                buttonOff: 'বন্ধ',
+                advancedStats: 'গ্রাফিকাল পরিসংখ্যান',
+                statsToday: 'আজ',
+                statsWeek: 'এই সপ্তাহে',
+                statsMonth: 'এই মাসে',
+                statsAll: 'সব সময়',
+                statsTotalMeetings: 'মোট সাক্ষাৎ',
+                statsUniqueIPs: 'অনন্য আইপি',
+                statsDifferentCountries: 'বিভিন্ন দেশ',
+                statsTopCountry: 'শীর্ষ দেশ সাক্ষাৎ',
+                statsTopCountries: 'শীর্ষ ১০ দেশ',
+                statsHours: 'পিক ব্যবহারের সময়',
+                statsHeatmap: 'সাপ্তাহিক হিটম্যাপ',
+                statsTopCities: 'শীর্ষ ১০ শহর',
+                statsCity: 'শহর',
+                statsMeetings: 'সাক্ষাৎ',
+                statsNoData: 'কোন তথ্য নেই',
+                statsSelectPeriod: 'বিশ্লেষণের জন্য সময়কাল নির্বাচন করুন:'
             },
-
             ru: {
                 settings: 'Настройки',
                 apply: 'Применить',
@@ -1434,8 +1599,6 @@
                 textModeNotSupported: 'Текстовый режим не поддерживается!',
                 betaWelcome: 'Добро пожаловать, бета-тестер!',
                 outdatedExtension: 'Расширение устарело!',
-                apply: 'Применить',
-                color: 'Цвет',
                 userStyles: 'Пользовательские стили',
                 userStylesDesc: 'Настройте внешний вид сайта и расширения с помощью пользовательского CSS',
                 customCSS: 'Пользовательский CSS',
@@ -1476,7 +1639,27 @@
                 reviewTitle: 'Нравится ChillTool’s?',
                 reviewBody: 'Если вам нравится, пожалуйста, оставьте отзыв на 5 звёзд. Это нам очень помогает!',
                 reviewLater: 'Позже',
-                reviewOk: 'ОК'
+                reviewOk: 'ОК',
+                download: 'Скачать',
+                buttonOn: 'ВКЛ',
+                buttonOff: 'ВЫКЛ',
+                advancedStats: 'Графическая статистика',
+                statsToday: 'Сегодня',
+                statsWeek: 'Эта неделя',
+                statsMonth: 'Этот месяц',
+                statsAll: 'Всё время',
+                statsTotalMeetings: 'Всего встреч',
+                statsUniqueIPs: 'Уникальных IP',
+                statsDifferentCountries: 'Разных стран',
+                statsTopCountry: 'Встреч с топ страной',
+                statsTopCountries: 'Топ 10 стран',
+                statsHours: 'Часы пик',
+                statsHeatmap: 'Недельная тепловая карта',
+                statsTopCities: 'Топ 10 городов',
+                statsCity: 'Город',
+                statsMeetings: 'Встречи',
+                statsNoData: 'Нет данных',
+                statsSelectPeriod: 'Выберите период для анализа:'
             },
             pt: {
                 settings: 'Configurações',
@@ -1514,8 +1697,6 @@
                 textModeNotSupported: 'O modo texto não é suportado!',
                 betaWelcome: 'Bem-vindo a bordo, testador beta!',
                 outdatedExtension: 'A extensão está desatualizada!',
-                apply: 'Aplicar',
-                color: 'Cor',
                 userStyles: 'UserStyles',
                 userStylesDesc: 'Personalize a aparência do site e da extensão com CSS personalizado',
                 customCSS: 'CSS Personalizado',
@@ -1545,7 +1726,6 @@
                 skips: 'Pulos',
                 close: 'Fechar',
                 countriesSelected: 'países selecionados',
-                peopleEncountered: 'Pessoas encontradas',
                 saveButtonChoice: 'Salvar escolha de botões',
                 persistent: 'PERSISTENTE',
                 persistentTooltip: 'Salva a última escolha feita nos botões',
@@ -1556,13 +1736,33 @@
                 reviewTitle: 'Gostando do ChillTool’s?',
                 reviewBody: 'Se você gosta, por favor deixe uma avaliação de 5 estrelas. Isso ajuda muito!',
                 reviewLater: 'Talvez depois',
-                reviewOk: 'OK'
+                reviewOk: 'OK',
+                download: 'Download',
+                buttonOn: 'ON',
+                buttonOff: 'OFF',
+                advancedStats: 'Estatísticas Gráficas',
+                statsToday: 'Hoje',
+                statsWeek: 'Esta semana',
+                statsMonth: 'Este mês',
+                statsAll: 'Todo',
+                statsTotalMeetings: 'Total de Encontros',
+                statsUniqueIPs: 'IPs Únicos',
+                statsDifferentCountries: 'Países Diferentes',
+                statsTopCountry: 'Encontros Top País',
+                statsTopCountries: 'Top 10 Países Encontrados',
+                statsHours: 'Horários de Pico',
+                statsHeatmap: 'Mapa de Calor Semanal',
+                statsTopCities: 'Top 10 Cidades',
+                statsCity: 'Cidade',
+                statsMeetings: 'Encontros',
+                statsNoData: 'Sem dados disponíveis',
+                statsSelectPeriod: 'Selecione o período para analisar:'
             },
             id: {
                 settings: 'Pengaturan',
                 apply: 'Terapkan',
                 color: 'Warna',
-                peopleEncountered: 'Orang yang Ditemui', 
+                peopleEncountered: 'Orang yang Ditemui',
                 videoBorder: 'Warna kustom',
                 whiteColorNotAllowed: 'Warna putih tidak diizinkan. Silakan pilih warna yang berbeda.',
                 settingsDesc: 'Di sini Anda dapat mengonfigurasi pengaturan ekstensi',
@@ -1595,8 +1795,6 @@
                 textModeNotSupported: 'Mode teks tidak didukung!',
                 betaWelcome: 'Selamat datang, penguji beta!',
                 outdatedExtension: 'Ekstensi sudah usang!',
-                apply: 'Terapkan',
-                color: 'Warna',
                 userStyles: 'UserStyles',
                 userStylesDesc: 'Sesuaikan tampilan situs dan ekstensi dengan CSS kustom',
                 customCSS: 'CSS Kustom',
@@ -1629,14 +1827,32 @@
                 statisticsTitle: 'Statistik Penggunaan',
                 totalTimeSpent: 'Total Waktu Digunakan',
                 skips: 'Lewati',
-                buttonOn: 'ON',
-                buttonOff: 'OFF',
                 enterIpToBlock: 'Masukkan IP yang akan diblokir',
                 blockIp: 'Blokir IP',
                 reviewTitle: 'Suka dengan ChillTool’s?',
                 reviewBody: 'Jika Anda suka, mohon beri ulasan 5 bintang. Itu sangat membantu!',
                 reviewLater: 'Mungkin nanti',
-                reviewOk: 'OK'
+                reviewOk: 'OK',
+                download: 'Unduh',
+                buttonOn: 'ON',
+                buttonOff: 'OFF',
+                advancedStats: 'Statistik Grafis',
+                statsToday: 'Hari ini',
+                statsWeek: 'Minggu ini',
+                statsMonth: 'Bulan ini',
+                statsAll: 'Semua waktu',
+                statsTotalMeetings: 'Total Pertemuan',
+                statsUniqueIPs: 'IP Unik',
+                statsDifferentCountries: 'Negara Berbeda',
+                statsTopCountry: 'Pertemuan Negara Teratas',
+                statsTopCountries: 'Top 10 Negara Ditemui',
+                statsHours: 'Jam Penggunaan Tertinggi',
+                statsHeatmap: 'Heatmap Mingguan',
+                statsTopCities: 'Top 10 Kota',
+                statsCity: 'Kota',
+                statsMeetings: 'Pertemuan',
+                statsNoData: 'Tidak ada data tersedia',
+                statsSelectPeriod: 'Pilih periode untuk dianalisis:'
             },
             it: {
                 settings: 'Impostazioni',
@@ -1699,7 +1915,7 @@
                 selectCountries: 'Seleziona Paesi',
                 noCountriesSelected: 'Nessun paese selezionato - tutti i paesi consentiti',
                 countriesSelected: 'paesi selezionati',
-                saveButtonChoice: 'Salva scelta pulsanti',
+                peopleEncountered: 'Persone Incontrate',
                 persistent: 'PERSISTENTE',
                 persistentTooltip: 'Salva l\'ultima scelta fatta sui pulsanti',
                 showIp: 'Mostra IP',
@@ -1708,15 +1924,31 @@
                 donate: 'Donazioni',
                 statisticsTitle: 'Statistiche di Utilizzo',
                 totalTimeSpent: 'Tempo Totale Trascorso',
-                peopleEncountered: 'Persone Incontrate',
                 skips: 'Salti',
-                close: 'Chiudi',
                 reviewTitle: 'Ti piace ChillTool’s?',
                 reviewBody: 'Se ti piace, lascia una recensione a 5 stelle. Ci aiuta tantissimo!',
                 reviewLater: 'Forse dopo',
                 reviewOk: 'OK',
+                download: 'Scarica',
                 buttonOn: 'ON',
-                buttonOff: 'OFF'
+                buttonOff: 'OFF',
+                advancedStats: 'Statistiche Grafiche',
+                statsToday: 'Oggi',
+                statsWeek: 'Questa settimana',
+                statsMonth: 'Questo mese',
+                statsAll: 'Tutto',
+                statsTotalMeetings: 'Totale Incontri',
+                statsUniqueIPs: 'IP Unici',
+                statsDifferentCountries: 'Paesi Diversi',
+                statsTopCountry: 'Incontri Top Paese',
+                statsTopCountries: 'Top 10 Paesi Incontrati',
+                statsHours: 'Orari di Maggior Utilizzo',
+                statsHeatmap: 'Heatmap Settimanale',
+                statsTopCities: 'Top 10 Città',
+                statsCity: 'Città',
+                statsMeetings: 'Incontri',
+                statsNoData: 'Nessun dato disponibile',
+                statsSelectPeriod: 'Seleziona il periodo da analizzare:'
             }
         };
 
@@ -1955,7 +2187,740 @@
             localStorage.setItem('chilltool_selectedCountries', JSON.stringify(countries));
         }
 
-                   function showCountryFilterModal() {
+        
+        // ===== FUNZIONE STATISTICHE SPOSTATA PRIMA =====
+        function loadStatsData() {
+            try {
+                const saved = localStorage.getItem('chilltool_stats');
+                return saved ? JSON.parse(saved) : null;
+            } catch (e) {
+                console.error('❌ Errore nel caricare le statistiche:', e);
+                return null;
+            }
+        }
+
+        function getStatsData(timeFilter = 'all') {
+            // Se è "all", prova a usare le statistiche salvate
+            if (timeFilter === 'all') {
+                const savedStats = loadStatsData();
+                if (savedStats) {
+                    console.log('📊 Usando statistiche salvate');
+                    return savedStats;
+                }
+            }
+            
+            // Altrimenti calcola normalmente
+            const history = (graphHistory && graphHistory.length ? graphHistory : connectionHistory) || [];
+            let filteredHistory = [...history];
+            
+            // Definisci i periodi con date ISO (formato standard)
+            const now = new Date();
+            
+            const today = new Date(now);
+            today.setHours(0, 0, 0, 0);  // Inizio oggi
+            
+            const weekAgo = new Date(now);
+            weekAgo.setDate(weekAgo.getDate() - 7);
+            weekAgo.setHours(0, 0, 0, 0);  // Inizio 7 giorni fa
+            
+            const monthAgo = new Date(now);
+            monthAgo.setMonth(monthAgo.getMonth() - 1);
+            monthAgo.setHours(0, 0, 0, 0);  // Inizio 30 giorni fa
+            
+            console.log('📅 Periodi di confronto:', {
+                oggi: today.toLocaleString(),
+                '7 giorni fa': weekAgo.toLocaleString(),
+                '30 giorni fa': monthAgo.toLocaleString()
+            });
+            
+            // Applica filtro temporale con parsing robusto
+            switch(timeFilter) {
+                case 'today':
+                    filteredHistory = history.filter(entry => {
+                        if (!entry.timestamp) return false;
+                        
+                        // Converte il timestamp in modo robusto
+                        let entryDate;
+                        if (entry.timestamp.includes('/')) {
+                            // Formato "14/03/2026, 15:30:22"
+                            const [datePart, timePart] = entry.timestamp.split(', ');
+                            const [day, month, year] = datePart.split('/');
+                            entryDate = new Date(`${year}-${month}-${day}T${timePart}`);
+                        } else {
+                            entryDate = new Date(entry.timestamp);
+                        }
+                        
+                        // Verifica se è un giorno valido
+                        if (isNaN(entryDate.getTime())) {
+                            console.warn('⚠️ Data non valida:', entry.timestamp);
+                            return false;
+                        }
+                        
+                        return entryDate >= today;
+                    });
+                    break;
+                    
+                case 'week':
+                    filteredHistory = history.filter(entry => {
+                        if (!entry.timestamp) return false;
+                        
+                        let entryDate;
+                        if (entry.timestamp.includes('/')) {
+                            const [datePart, timePart] = entry.timestamp.split(', ');
+                            const [day, month, year] = datePart.split('/');
+                            entryDate = new Date(`${year}-${month}-${day}T${timePart}`);
+                        } else {
+                            entryDate = new Date(entry.timestamp);
+                        }
+                        
+                        if (isNaN(entryDate.getTime())) return false;
+                        return entryDate >= weekAgo;
+                    });
+                    break;
+                    
+                case 'month':
+                    filteredHistory = history.filter(entry => {
+                        if (!entry.timestamp) return false;
+                        
+                        let entryDate;
+                        if (entry.timestamp.includes('/')) {
+                            const [datePart, timePart] = entry.timestamp.split(', ');
+                            const [day, month, year] = datePart.split('/');
+                            entryDate = new Date(`${year}-${month}-${day}T${timePart}`);
+                        } else {
+                            entryDate = new Date(entry.timestamp);
+                        }
+                        
+                        if (isNaN(entryDate.getTime())) return false;
+                        return entryDate >= monthAgo;
+                    });
+                    break;
+                    
+                case 'all':
+                default:
+                    filteredHistory = history;
+                    break;
+            }
+            
+            console.log(`📊 Filtro: ${timeFilter} - Record trovati: ${filteredHistory.length} (totale: ${history.length})`);
+            
+            // Se non ci sono dati, mostra un messaggio
+            if (filteredHistory.length === 0) {
+                console.log(`⚠️ Nessun dato per il filtro "${timeFilter}"`);
+            }
+            
+            // Statistiche
+            const countries = {};
+            const cities = {};
+            const hourlyData = new Array(24).fill(0);
+            const weeklyData = new Array(7).fill(0);
+            const heatmapData = Array(7).fill().map(() => Array(24).fill(0));
+            
+            filteredHistory.forEach(entry => {
+                const country = entry.info?.country || 'Sconosciuto';
+                const city = entry.info?.city || 'Sconosciuto';
+                
+                countries[country] = (countries[country] || 0) + 1;
+                cities[city] = (cities[city] || 0) + 1;
+                
+                // Parsing della data per le statistiche orarie
+                let entryDate;
+                if (entry.timestamp?.includes('/')) {
+                    const [datePart, timePart] = entry.timestamp.split(', ');
+                    const [day, month, year] = datePart.split('/');
+                    entryDate = new Date(`${year}-${month}-${day}T${timePart}`);
+                } else {
+                    entryDate = new Date(entry.timestamp);
+                }
+                
+                if (!isNaN(entryDate.getTime())) {
+                    const hour = entryDate.getHours();
+                    const day = entryDate.getDay(); // 0 = Domenica
+                    
+                    hourlyData[hour] = (hourlyData[hour] || 0) + 1;
+                    weeklyData[day] = (weeklyData[day] || 0) + 1;
+                    heatmapData[day][hour] = (heatmapData[day][hour] || 0) + 1;
+                }
+            });
+            
+            return {
+                total: filteredHistory.length,
+                uniqueIPs: new Set(filteredHistory.map(e => e.ip)).size,
+                countries: Object.entries(countries).sort((a, b) => b[1] - a[1]).slice(0, 10),
+                cities: Object.entries(cities).sort((a, b) => b[1] - a[1]).slice(0, 10),
+                hourlyData,
+                weeklyData,
+                heatmapData
+            };
+        }
+
+               function showAdvancedStats() {
+            const toolbar = document.getElementById('chillToolbar');
+            if (toolbar && !isMobile()) toolbar.classList.add('chill-blur');
+            const lang = getLang();
+            const t = translations[lang];
+            
+            // Prima finestra: selezione filtro
+            const filterModalHTML = `
+            <div id="statsFilterModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(5px); z-index: 10000; display: flex; justify-content: center; align-items: center;">
+                <div style="background: #111; border-radius: 10px; width: 90%; max-width: 400px; padding: 20px; box-shadow: 0 5px 25px rgba(0,0,0,0.7); border: 1px solid #333;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #333;">
+                        <h3 style="margin: 0; color: #fff; font-size: 18px;">
+                            <i class="fas fa-chart-pie" style="color: #4dabf7;"></i> ${t.advancedStats}
+                        </h3>
+                        <button id="closeStatsFilter" style="background: none; border: none; color: #fff; font-size: 20px; cursor: pointer;">×</button>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <p style="color: #bbb; margin-bottom: 15px;">${t.statsSelectPeriod}</p>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                            <button class="stats-filter-option" data-filter="today" style="
+                                background: linear-gradient(145deg, #1a1a1a, #222);
+                                border: none;
+                                border-left: 4px solid #4dabf7;
+                                border-radius: 10px;
+                                padding: 15px;
+                                color: white;
+                                cursor: pointer;
+                                font-size: 14px;
+                                font-weight: 600;
+                                display: flex;
+                                flex-direction: column;
+                                align-items: center;
+                                justify-content: center;
+                                gap: 5px;
+                                transition: all 0.2s;
+                                width: 100%;
+                            ">
+                                <i class="fas fa-sun" style="color: #ffd700; font-size: 20px;"></i>
+                                <span>${t.statsToday}</span>
+                                <span style="color: #888; font-size: 11px;">24 ore</span>
+                            </button>
+                            
+                            <button class="stats-filter-option" data-filter="week" style="
+                                background: linear-gradient(145deg, #1a1a1a, #222);
+                                border: none;
+                                border-left: 4px solid #4dabf7;
+                                border-radius: 10px;
+                                padding: 15px;
+                                color: white;
+                                cursor: pointer;
+                                font-size: 14px;
+                                font-weight: 600;
+                                display: flex;
+                                flex-direction: column;
+                                align-items: center;
+                                justify-content: center;
+                                gap: 5px;
+                                transition: all 0.2s;
+                                width: 100%;
+                            ">
+                                <i class="fas fa-calendar-week" style="color: #4dabf7; font-size: 20px;"></i>
+                                <span>${t.statsWeek}</span>
+                                <span style="color: #888; font-size: 11px;">7 giorni</span>
+                            </button>
+                            
+                            <button class="stats-filter-option" data-filter="month" style="
+                                background: linear-gradient(145deg, #1a1a1a, #222);
+                                border: none;
+                                border-left: 4px solid #4dabf7;
+                                border-radius: 10px;
+                                padding: 15px;
+                                color: white;
+                                cursor: pointer;
+                                font-size: 14px;
+                                font-weight: 600;
+                                display: flex;
+                                flex-direction: column;
+                                align-items: center;
+                                justify-content: center;
+                                gap: 5px;
+                                transition: all 0.2s;
+                                width: 100%;
+                            ">
+                                <i class="fas fa-calendar-alt" style="color: #51cf66; font-size: 20px;"></i>
+                                <span>${t.statsMonth}</span>
+                                <span style="color: #888; font-size: 11px;">30 giorni</span>
+                            </button>
+                            
+                            <button class="stats-filter-option" data-filter="all" style="
+                                background: linear-gradient(145deg, #1a1a1a, #222);
+                                border: none;
+                                border-left: 4px solid #4dabf7;
+                                border-radius: 10px;
+                                padding: 15px;
+                                color: white;
+                                cursor: pointer;
+                                font-size: 14px;
+                                font-weight: 600;
+                                display: flex;
+                                flex-direction: column;
+                                align-items: center;
+                                justify-content: center;
+                                gap: 5px;
+                                transition: all 0.2s;
+                                width: 100%;
+                            ">
+                                <i class="fas fa-infinity" style="color: #ff6b6b; font-size: 20px;"></i>
+                                <span>${t.statsAll}</span>
+                                <span style="color: #888; font-size: 11px;">dall'inizio</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+            
+            document.body.insertAdjacentHTML('beforeend', filterModalHTML);
+            
+            const filterModal = document.getElementById('statsFilterModal');
+            
+            // Click fuori per chiudere
+            filterModal.addEventListener('click', function(e) {
+                if (e.target === filterModal) {
+                    filterModal.remove();
+                    unblurToolbar();
+                }
+            });
+            
+            document.getElementById('closeStatsFilter').addEventListener('click', () => {
+                filterModal.remove();
+                unblurToolbar();
+            });
+            
+            // Gestisci selezione filtro con hover effect
+            document.querySelectorAll('.stats-filter-option').forEach(btn => {
+                btn.addEventListener('mouseenter', function() {
+                    this.style.background = 'linear-gradient(145deg, #222, #2a2a2a)';
+                    this.style.transform = 'translateY(-2px)';
+                    this.style.boxShadow = '0 5px 15px rgba(77, 171, 247, 0.3)';
+                });
+                btn.addEventListener('mouseleave', function() {
+                    this.style.background = 'linear-gradient(145deg, #1a1a1a, #222)';
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = 'none';
+                });
+                
+                btn.addEventListener('click', function() {
+                    const filter = this.getAttribute('data-filter');
+                    filterModal.remove();
+                    showStatsResults(filter);
+                });
+            });
+        }
+
+        function showStatsResults(timeFilter) {
+            console.log('📊 showStatsResults chiamato con filtro:', timeFilter);
+            
+            const toolbar = document.getElementById('chillToolbar');
+            const t = translations[getLang()];
+            const stats = getStatsData(timeFilter);
+            
+            // Ottieni anche i dati delle statistiche normali
+            const totalTime = getTimeElapsed();
+            const peopleCount = getPeopleCount();
+            const skipCount = getSkipCount();
+            
+            const modalHTML = `
+            <div id="statsResultsModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(5px); z-index: 10000; display: flex; justify-content: center; align-items: center;">
+                <div style="background: #111; border-radius: 10px; width: 95%; max-width: 1200px; max-height: 90vh; overflow: hidden; box-shadow: 0 5px 25px rgba(0,0,0,0.7); border: 1px solid #333; display: flex; flex-direction: column;">
+                    
+                    <!-- Header -->
+                    <div style="padding: 15px; background: linear-gradient(to right, #8e2de2, #4a00e0); color: white; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333;">
+                        <h3 style="margin: 0; font-size: 18px;">
+                            <i class="fas fa-chart-pie"></i> ${t.advancedStats} ${timeFilter === 'all' ? '' : timeFilter === 'today' ? t.statsToday : timeFilter === 'week' ? t.statsWeek : t.statsMonth}
+                        </h3>
+                        <button id="closeStatsResults" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer;">×</button>
+                    </div>
+                    
+                    <!-- Corpo con scroll -->
+                    <div style="padding: 20px; overflow-y: auto; flex-grow: 1;">
+                        
+                        <!-- Riepilogo numeri -->
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 30px;">
+                            <div style="background: linear-gradient(145deg, #1a1a1a, #222); border-radius: 10px; padding: 15px; text-align: center; border-left: 4px solid #8e2de2;">
+                                <div style="font-size: 28px; font-weight: bold; color: #8e2de2;">${formatTime(totalTime)}</div>
+                                <div style="color: #aaa; font-size: 12px; margin-top: 5px;">${t.totalTimeSpent}</div>
+                            </div>
+                            
+                            <div style="background: linear-gradient(145deg, #1a1a1a, #222); border-radius: 10px; padding: 15px; text-align: center; border-left: 4px solid #ffd43b;">
+                                <div style="font-size: 28px; font-weight: bold; color: #ffd43b;">${peopleCount}</div>
+                                <div style="color: #aaa; font-size: 12px; margin-top: 5px;">${t.peopleEncountered}</div>
+                            </div>
+                            
+                            <div style="background: linear-gradient(145deg, #1a1a1a, #222); border-radius: 10px; padding: 15px; text-align: center; border-left: 4px solid #ff8787;">
+                                <div style="font-size: 28px; font-weight: bold; color: #ff8787;">${skipCount}</div>
+                                <div style="color: #aaa; font-size: 12px; margin-top: 5px;">${t.skips}</div>
+                            </div>
+                            
+                            <div style="background: linear-gradient(145deg, #1a1a1a, #222); border-radius: 10px; padding: 15px; text-align: center; border-left: 4px solid #4dabf7;">
+                                <div style="font-size: 28px; font-weight: bold; color: #4dabf7;">${stats.total}</div>
+                                <div style="color: #aaa; font-size: 12px; margin-top: 5px;">${t.statsTotalMeetings}</div>
+                            </div>
+                            
+                            <div style="background: linear-gradient(145deg, #1a1a1a, #222); border-radius: 10px; padding: 15px; text-align: center; border-left: 4px solid #51cf66;">
+                                <div style="font-size: 28px; font-weight: bold; color: #51cf66;">${stats.uniqueIPs}</div>
+                                <div style="color: #aaa; font-size: 12px; margin-top: 5px;">${t.statsUniqueIPs}</div>
+                            </div>
+                            
+                            <div style="background: linear-gradient(145deg, #1a1a1a, #222); border-radius: 10px; padding: 15px; text-align: center; border-left: 4px solid #ffd43b;">
+                                <div style="font-size: 28px; font-weight: bold; color: #ffd43b;">${stats.countries.length}</div>
+                                <div style="color: #aaa; font-size: 12px; margin-top: 5px;">${t.statsDifferentCountries}</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Grafico paesi -->
+                        <div style="margin-bottom: 30px;">
+                            <h4 style="color: #fff; margin-bottom: 15px;">
+                                <i class="fas fa-globe" style="color: #4dabf7; margin-right: 10px;"></i>
+                                ${t.statsTopCountries}
+                            </h4>
+                            <div style="background: #1a1a1a; border-radius: 10px; padding: 20px;">
+                                <canvas id="countryChart" style="width: 100%; height: 300px;"></canvas>
+                            </div>
+                        </div>
+                        
+                        <!-- Grafico orari -->
+                        <div style="margin-bottom: 30px;">
+                            <h4 style="color: #fff; margin-bottom: 15px;">
+                                <i class="fas fa-clock" style="color: #51cf66; margin-right: 10px;"></i>
+                                ${t.statsHours}
+                            </h4>
+                            <div style="background: #1a1a1a; border-radius: 10px; padding: 20px;">
+                                <canvas id="hourlyChart" style="width: 100%; height: 300px;"></canvas>
+                            </div>
+                        </div>
+                        
+                        <!-- Heatmap -->
+                        <div style="margin-bottom: 30px;">
+                            <h4 style="color: #fff; margin-bottom: 15px;">
+                                <i class="fas fa-calendar-alt" style="color: #ff8787; margin-right: 10px;"></i>
+                                ${t.statsHeatmap}
+                            </h4>
+                            <div style="background: #1a1a1a; border-radius: 10px; padding: 20px; overflow-x: auto;">
+                                <div style="min-width: 800px;">
+                                    <canvas id="heatmapChart" style="width: 100%; height: 300px;"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Tabella città -->
+                        <div style="margin-bottom: 20px;">
+                            <h4 style="color: #fff; margin-bottom: 15px;">
+                                <i class="fas fa-city" style="color: #ffd43b; margin-right: 10px;"></i>
+                                ${t.statsTopCities}
+                            </h4>
+                            <div style="background: #1a1a1a; border-radius: 10px; padding: 20px;">
+                                <table style="width: 100%; color: #fff; border-collapse: collapse;">
+                                    <thead>
+                                        <tr style="border-bottom: 1px solid #333;">
+                                            <th style="padding: 10px; text-align: left;">${t.statsCity}</th>
+                                            <th style="padding: 10px; text-align: right;">${t.statsMeetings}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${stats.cities.length > 0 ? stats.cities.map(city => `
+                                            <tr style="border-bottom: 1px solid #222;">
+                                                <td style="padding: 8px 10px;">${city[0]}</td>
+                                                <td style="padding: 8px 10px; text-align: right; color: #4dabf7;">${city[1]}</td>
+                                            </tr>
+                                        `).join('') : `
+                                            <tr>
+                                                <td colspan="2" style="padding: 20px; text-align: center; color: #666;">
+                                                    ${t.statsNoData}
+                                                </td>
+                                            </tr>
+                                        `}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            
+            const modal = document.getElementById('statsResultsModal');
+            
+            // Click fuori per chiudere
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.remove();
+                    unblurToolbar();
+                }
+            });
+            
+            document.getElementById('closeStatsResults').addEventListener('click', () => {
+                modal.remove();
+                unblurToolbar();
+            });
+            
+            // ✅ ASPETTA CHE CHART.JS SIA CARICATO
+            function createCharts() {
+                if (typeof Chart === 'undefined') {
+                    console.log('⏳ Chart.js non ancora caricato, riprovo tra 500ms...');
+                    setTimeout(createCharts, 500);
+                    return;
+                }
+                
+                console.log('✅ Chart.js caricato, creo i grafici');
+                
+                // Distruggi grafici esistenti se presenti
+                const countryCanvas = document.getElementById('countryChart');
+                const hourlyCanvas = document.getElementById('hourlyChart');
+                const heatmapCanvas = document.getElementById('heatmapChart');
+                
+                if (countryCanvas && countryCanvas.chart) countryCanvas.chart.destroy();
+                if (hourlyCanvas && hourlyCanvas.chart) hourlyCanvas.chart.destroy();
+                if (heatmapCanvas && heatmapCanvas.chart) heatmapCanvas.chart.destroy();
+                
+                // Crea nuovi grafici
+                createCountryChart(stats.countries);
+                createHourlyChart(stats.hourlyData);
+                createHeatmap(stats.heatmapData);
+            }
+            
+            // Avvia il tentativo di creazione grafici
+            setTimeout(createCharts, 100);
+        }
+        
+
+        // Funzioni per creare i grafici con debug
+        function createCountryChart(countriesData) {
+            console.log('🌍 Creazione grafico paesi con dati:', countriesData);
+            
+            const canvas = document.getElementById('countryChart');
+            if (!canvas) {
+                console.error('❌ Canvas countryChart non trovato!');
+                return;
+            }
+            
+            const ctx = canvas.getContext('2d');
+            if (!ctx) {
+                console.error('❌ Impossibile ottenere context 2D per countryChart');
+                return;
+            }
+            
+            if (typeof Chart === 'undefined') {
+                console.error('❌ Chart non definito');
+                return;
+            }
+            
+            // Distruggi grafico esistente se presente
+            if (canvas.chart) {
+                canvas.chart.destroy();
+            }
+            
+            try {
+                canvas.chart = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: countriesData.map(c => c[0] || 'Sconosciuto'),
+                        datasets: [{
+                            data: countriesData.map(c => c[1] || 0),
+                            backgroundColor: [
+                                '#4dabf7', '#51cf66', '#ffd43b', '#ff8787', '#9775fa',
+                                '#ff922b', '#20c997', '#748ffc', '#f783ac', '#94d82d'
+                            ],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                                labels: { 
+                                    color: '#fff',
+                                    font: { size: 12 }
+                                }
+                            }
+                        }
+                    }
+                });
+                console.log('✅ Grafico paesi creato con successo');
+            } catch (error) {
+                console.error('❌ Errore nella creazione del grafico paesi:', error);
+            }
+        }
+
+        function createHourlyChart(hourlyData) {
+            console.log('⏰ Creazione grafico orari con dati:', hourlyData);
+            
+            const canvas = document.getElementById('hourlyChart');
+            if (!canvas) {
+                console.error('❌ Canvas hourlyChart non trovato!');
+                return;
+            }
+            
+            const ctx = canvas.getContext('2d');
+            if (!ctx) {
+                console.error('❌ Impossibile ottenere context 2D per hourlyChart');
+                return;
+            }
+            
+            if (typeof Chart === 'undefined') {
+                console.error('❌ Chart non definito');
+                return;
+            }
+            
+            // Distruggi grafico esistente se presente
+            if (canvas.chart) {
+                canvas.chart.destroy();
+            }
+            
+            const hours = Array.from({ length: 24 }, (_, i) => `${i}:00`);
+            
+            try {
+                canvas.chart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: hours,
+                        datasets: [{
+                            label: 'Incontri',
+                            data: hourlyData,
+                            backgroundColor: '#4dabf7',
+                            borderRadius: 5
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: '#333' },
+                                ticks: { 
+                                    color: '#fff',
+                                    stepSize: 1
+                                }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { 
+                                    color: '#fff',
+                                    maxRotation: 45,
+                                    minRotation: 45
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+                console.log('✅ Grafico orari creato con successo');
+            } catch (error) {
+                console.error('❌ Errore nella creazione del grafico orari:', error);
+            }
+        }
+
+        function createHeatmap(heatmapData) {
+            console.log('🔥 Creazione heatmap con dati:', heatmapData);
+            
+            const canvas = document.getElementById('heatmapChart');
+            if (!canvas) {
+                console.error('❌ Canvas heatmapChart non trovato!');
+                return;
+            }
+            
+            const ctx = canvas.getContext('2d');
+            if (!ctx) {
+                console.error('❌ Impossibile ottenere context 2D per heatmapChart');
+                return;
+            }
+            
+            if (typeof Chart === 'undefined') {
+                console.error('❌ Chart non definito');
+                return;
+            }
+            
+            // Distruggi grafico esistente se presente
+            if (canvas.chart) {
+                canvas.chart.destroy();
+            }
+            
+            const days = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
+            
+            // Prepara i dati per il grafico a bolle
+            const data = [];
+            heatmapData.forEach((row, day) => {
+                row.forEach((value, hour) => {
+                    if (value > 0) {
+                        data.push({
+                            x: hour,
+                            y: day,
+                            r: Math.min(value * 3, 20)
+                        });
+                    }
+                });
+            });
+            
+            console.log('📊 Dati heatmap preparati:', data);
+            
+            try {
+                canvas.chart = new Chart(ctx, {
+                    type: 'bubble',
+                    data: {
+                        datasets: [{
+                            data: data,
+                            backgroundColor: 'rgba(77, 171, 247, 0.7)',
+                            hoverBackgroundColor: '#4dabf7'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                type: 'category',
+                                labels: days,
+                                grid: { color: '#333' },
+                                ticks: { 
+                                    color: '#fff',
+                                    stepSize: 1
+                                }
+                            },
+                            x: {
+                                type: 'linear',
+                                position: 'bottom',
+                                min: -0.5,
+                                max: 23.5,
+                                grid: { color: '#333' },
+                                ticks: {
+                                    color: '#fff',
+                                    callback: function(val) {
+                                        return `${Math.round(val)}:00`;
+                                    },
+                                    stepSize: 1
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: (context) => {
+                                        const day = days[context.raw.y];
+                                        const hour = Math.round(context.raw.x);
+                                        const value = Math.round(context.raw.r / 3);
+                                        return `${day} ${hour}:00 - ${value} incontri`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                console.log('✅ Heatmap creata con successo');
+            } catch (error) {
+                console.error('❌ Errore nella creazione dell\'heatmap:', error);
+            }
+        }
+        
+
+        function showCountryFilterModal() {
             const toolbar = document.getElementById('chillToolbar');
             if (toolbar && !isMobile()) toolbar.classList.add('chill-blur');
             const lang = getLang();
@@ -2246,7 +3211,7 @@
             });
         }
 
-              function showSettings() {
+        function showSettings() {
             const toolbar = document.getElementById('chillToolbar');
             if (toolbar && !isMobile()) toolbar.classList.add('chill-blur');
             const lang = getLang();
@@ -2417,6 +3382,7 @@
                                 <i class="fas fa-paint-brush"></i> ${t.userStyles || 'UserStyles'}
                             </button>
                         </div>
+                        
                         <div style="display: flex; gap: 10px; margin-top: 10px;">
                             <button id="tosBtn" style="
                                 flex: 1;
@@ -2454,46 +3420,41 @@
                         </div>
                         
                         <div style="display: flex; gap: 10px; margin-top: 10px;">
-                            <a href="https://www.paypal.com/paypalme/LeoneHUB" target="_blank" id="donateBtn" style="
+                            <a href="https://www.paypal.com/paypalme/LeoneHUB" target="_blank" style="
                                 flex: 1;
-                                padding: 12px 15px;
                                 background: #ff6b35;
                                 color: white;
                                 border: none;
+                                padding: 10px 15px;
                                 border-radius: 8px;
                                 cursor: pointer;
                                 font-size: 14px;
-                                font-weight: 600;
-                                display: flex;
-                                align-items: center;
-                                justify-content: center;
-                                gap: 8px;
                                 transition: all 0.2s;
                                 text-align: center;
                                 text-decoration: none;
-                            ">
-                                <i class="fas fa-heart"></i>
-                                ${t.donate}
-                            </a>
-                            
-                            <button id="showStatisticsBtn" style="
-                                flex: 1;
-                                padding: 12px 15px;
-                                background: #ad6721;
-                                color: white;
-                                border: none;
-                                border-radius: 8px;
-                                cursor: pointer;
-                                font-size: 14px;
-                                font-weight: 600;
                                 display: flex;
                                 align-items: center;
                                 justify-content: center;
                                 gap: 8px;
-                                transition: all 0.2s;
                             ">
-                                <i class="fas fa-chart-bar"></i>
-                                ${t.statistics}
+                                <i class="fas fa-heart"></i> ${t.donate}
+                            </a>
+                            <button id="showAdvancedStatsBtn" style="
+                                flex: 1;
+                                background: #8e2de2;
+                                color: white;
+                                border: none;
+                                padding: 10px 15px;
+                                border-radius: 8px;
+                                cursor: pointer;
+                                font-size: 14px;
+                                transition: all 0.2s;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                gap: 8px;
+                            ">
+                                <i class="fas fa-chart-pie"></i> ${t.advancedStats || 'Graphical Statistics'}
                             </button>
                         </div>
                     </div>
@@ -2835,6 +3796,14 @@
                 unblurToolbar();
             };
             
+              const advancedStatsBtn = document.getElementById('showAdvancedStatsBtn');
+            if (advancedStatsBtn) {
+                advancedStatsBtn.addEventListener('click', function() {
+                    document.getElementById('settingsModal').remove();
+                    showAdvancedStats();
+                });
+            }
+
             const savedColor = localStorage.getItem('videoBorderColor') || '#0a0a0b';
             const styleElement = document.getElementById('rightBoxStyle') || document.createElement('style');
             styleElement.id = 'rightBoxStyle';
@@ -3452,14 +4421,175 @@
         });
         modalObserver.observe(document.body, { childList: true, subtree: false });
 
+        // ===== DICHIARAZIONI GLOBALI =====
         const currentSession = {
             ip: null,
             info: null,
-            screenshot: null
+            screenshot: null,
+            graphTimestamp: null
         };
-
+        let isHistoryVisible = false;
         const connectionHistory = [];
+        const graphHistory = [];
         const MAX_SCREENSHOTS = 30;
+
+        function loadGraphHistory() {
+            try {
+                const saved = localStorage.getItem('chilltool_graph_history');
+                if (saved) {
+                    const loaded = JSON.parse(saved);
+                    graphHistory.length = 0;
+                    if (addGraphHistoryEntry._keys) addGraphHistoryEntry._keys.clear();
+                    else addGraphHistoryEntry._keys = new Set();
+                    loaded.forEach(item => {
+                        if (item && item.ip && item.timestamp) {
+                            graphHistory.push(item);
+                            addGraphHistoryEntry._keys.add(`${item.ip}|${item.timestamp}`);
+                        }
+                    });
+                }
+            } catch (e) {
+                console.error('❌ Errore nel caricare i dati grafico:', e);
+            }
+        }
+
+        function saveGraphHistory() {
+            try {
+                const historyToSave = graphHistory.slice(0, 5000);
+                localStorage.setItem('chilltool_graph_history', JSON.stringify(historyToSave));
+            } catch (e) {
+                console.error('❌ Errore nel salvare i dati grafico:', e);
+            }
+        }
+
+        function addGraphHistoryEntry(entry) {
+            if (!entry || !entry.ip || !entry.timestamp) return;
+            const key = `${entry.ip}|${entry.timestamp}`;
+            if (!addGraphHistoryEntry._keys) addGraphHistoryEntry._keys = new Set();
+            if (addGraphHistoryEntry._keys.has(key)) return;
+            addGraphHistoryEntry._keys.add(key);
+
+            graphHistory.unshift({
+                ip: entry.ip,
+                info: entry.info || null,
+                timestamp: entry.timestamp
+            });
+
+            if (graphHistory.length > 5000) {
+                graphHistory.length = 5000;
+            }
+            saveGraphHistory();
+            saveStatsData();
+        }
+
+        // ===== FUNZIONE STATISTICHE UNIFICATA =====
+        function saveStatsData() {
+            try {
+                const countries = {};
+                const cities = {};
+                const hourlyData = new Array(24).fill(0);
+                const weeklyData = new Array(7).fill(0);
+                const heatmapData = Array(7).fill().map(() => Array(24).fill(0));
+                
+                const sourceHistory = graphHistory.length ? graphHistory : connectionHistory;
+                sourceHistory.forEach(entry => {
+                    const country = entry.info?.country || 'Sconosciuto';
+                    const city = entry.info?.city || 'Sconosciuto';
+                    
+                    countries[country] = (countries[country] || 0) + 1;
+                    cities[city] = (cities[city] || 0) + 1;
+                    
+                    let entryDate;
+                    if (entry.timestamp?.includes('/')) {
+                        const [datePart, timePart] = entry.timestamp.split(', ');
+                        const [day, month, year] = datePart.split('/');
+                        entryDate = new Date(`${year}-${month}-${day}T${timePart}`);
+                    } else {
+                        entryDate = new Date(entry.timestamp);
+                    }
+                    
+                    if (!isNaN(entryDate.getTime())) {
+                        const hour = entryDate.getHours();
+                        const day = entryDate.getDay();
+                        hourlyData[hour]++;
+                        weeklyData[day]++;
+                        heatmapData[day][hour]++;
+                    }
+                });
+                
+                const statsData = {
+                    total: sourceHistory.length,
+                    uniqueIPs: new Set(sourceHistory.map(e => e.ip)).size,
+                    countries: Object.entries(countries).sort((a, b) => b[1] - a[1]).slice(0, 10),
+                    cities: Object.entries(cities).sort((a, b) => b[1] - a[1]).slice(0, 10),
+                    hourlyData,
+                    weeklyData,
+                    heatmapData,
+                    lastUpdated: new Date().toISOString()
+                };
+                
+                localStorage.setItem('chilltool_stats', JSON.stringify(statsData));
+                console.log('✅ Statistiche salvate:', statsData.total, 'record elaborati');
+            } catch (e) {
+                console.error('❌ Errore nel salvare le statistiche:', e);
+            }
+        }
+
+        function saveConnectionHistory() {
+            try {
+                const historyToSave = connectionHistory.slice(0, 200);
+                localStorage.setItem('chilltool_history', JSON.stringify(historyToSave));
+                
+                // SALVA ANCHE LE STATISTICHE
+                saveStatsData();
+                
+                console.log('✅ Cronologia e statistiche salvate:', historyToSave.length, 'record');
+            } catch (e) {
+                console.error('❌ Errore nel salvare la cronologia:', e);
+            }
+        }
+
+        function loadConnectionHistory() {
+            try {
+                const saved = localStorage.getItem('chilltool_history');
+                if (saved) {
+                    const loaded = JSON.parse(saved);
+                    connectionHistory.length = 0;
+                    loaded.forEach(item => {
+                        if (item && item.ip && item.timestamp) {
+                            connectionHistory.push(item);
+                        }
+                    });
+                    console.log('✅ Cronologia caricata:', connectionHistory.length, 'record');
+                    
+                    updateStatsFromHistory();
+                    saveStatsData();
+                }
+            } catch (e) {
+                console.error('❌ Errore nel caricare la cronologia:', e);
+            }
+        }
+
+        function updateStatsFromHistory() {
+            const countries = {};
+            connectionHistory.forEach(entry => {
+                if (entry.info && entry.info.country) {
+                    countries[entry.info.country] = (countries[entry.info.country] || 0) + 1;
+                }
+            });
+            console.log('📊 Top 10 paesi caricati:', 
+                Object.entries(countries).sort((a, b) => b[1] - a[1]).slice(0, 10)
+            );
+        }
+
+        // ✅ Carica i dati UNA volta
+        loadGraphHistory();
+        loadConnectionHistory();
+
+        // Salva quando la pagina viene chiusa
+        window.addEventListener('beforeunload', function() {
+            saveConnectionHistory();
+        });
 
         const originalRTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection;
         window.RTCPeerConnection = function(...args) {
@@ -3531,6 +4661,13 @@
             currentSession.ip = ip;
             currentSession.info = null;
             currentSession.screenshot = null;
+            currentSession.graphTimestamp = new Date().toISOString();
+
+            addGraphHistoryEntry({
+                ip,
+                info: null,
+                timestamp: currentSession.graphTimestamp
+            });
 
             const banBtn = document.getElementById("chillBanBtn");
             if (banBtn) banBtn.disabled = false;
@@ -3565,6 +4702,13 @@
             const locationInfo = await getLocation(ip);
             if (locationInfo) {
                 currentSession.info = locationInfo;
+
+                const graphEntry = graphHistory.find(e => e.ip === ip && e.timestamp === currentSession.graphTimestamp);
+                if (graphEntry) {
+                    graphEntry.info = locationInfo;
+                    saveGraphHistory();
+                    saveStatsData();
+                }
                 
                 if (timerInterval) {
                     clearInterval(timerInterval);
@@ -3581,6 +4725,12 @@
                     const hours = Math.floor(diffInSeconds / 3600);
                     const minutes = Math.floor((diffInSeconds % 3600) / 60);
                     const seconds = diffInSeconds % 60;
+                    
+                    const existingEntry = connectionHistory.find(item => item.ip === ip);
+                    if (existingEntry) {
+                        existingEntry.info = locationInfo;
+                        saveConnectionHistory();
+                    }
                     
                     let timeString = '';
                     if (hours > 0) {
@@ -3614,7 +4764,6 @@
                     </div>
                 `;
                 }
-
             }
 
             const videoElement = document.getElementById('remoteVideo');
@@ -3708,7 +4857,7 @@
                                 ip: ip,
                                 info: currentSession.info,
                                 screenshot: screenshot,
-                                timestamp: new Date().toLocaleString(),
+                                timestamp: new Date().toISOString(),
                                 hasScreenshot: true
                             };
                             
@@ -3723,11 +4872,13 @@
                             }
                             
                             console.log('Added to history:', ip);
+                            saveConnectionHistory();
                         } else {
                             if (existingIndex < MAX_SCREENSHOTS) {
                                 connectionHistory[existingIndex].screenshot = screenshot;
                                 connectionHistory[existingIndex].timestamp = new Date().toLocaleString();
                                 console.log('Updated existing history entry:', ip);
+                                saveConnectionHistory();
                             }
                         }
                     }
@@ -3744,24 +4895,56 @@
             }
         }
 
-          function displayHistory() {
+        function displayHistory() {
             const toolbar = document.getElementById('chillToolbar');
             if (toolbar && !isMobile()) toolbar.classList.add('chill-blur');
             const lang = getLang();
             const t = translations[lang];
+            
             const modalHTML = `
             <div id="historyModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(5px); z-index: 9999; display: flex; justify-content: center; align-items: center;">
                 <div style="background: #111; border-radius: 10px; width: 90%; max-width: 600px; max-height: 80vh; overflow: hidden; box-shadow: 0 5px 25px rgba(0,0,0,0.7); border: 1px solid #333; display: flex; flex-direction: column;">
+                    
+                    <!-- HEADER con titolo e pulsanti -->
                     <div style="padding: 15px; background: linear-gradient(to right, #007bff, #6610f2); color: white; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333;">
                         <h3 style="margin: 0; font-size: 18px; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;">
                             <i class="fas fa-history"></i> ${t.history}
                         </h3>
-                        <button id="closeHistory" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer; padding: 0 10px;">×</button>
+                        <div style="display: flex; gap: 10px;">
+                            ${connectionHistory.length > 0 ? `
+                                <button id="clearHistoryBtn" style="
+                                    background: rgba(220, 53, 69, 0.8);
+                                    color: white;
+                                    border: none;
+                                    border-radius: 5px;
+                                    padding: 5px 10px;
+                                    cursor: pointer;
+                                    font-size: 13px;
+                                    display: flex;
+                                    align-items: center;
+                                    gap: 5px;
+                                    transition: all 0.2s;
+                                " title="Cancella tutta la cronologia">
+                                    <i class="fas fa-trash-alt"></i> Clear
+                                </button>
+                            ` : ''}
+                            <button id="closeHistory" style="
+                                background: none;
+                                border: none;
+                                color: white;
+                                font-size: 20px;
+                                cursor: pointer;
+                                padding: 0 5px;
+                            ">×</button>
+                        </div>
                     </div>
+                    
+                    <!-- CORPO della cronologia -->
                     <div style="padding: 15px; overflow-y: scroll; flex-grow: 1; min-height: 150px;">
                         <div style="color: #777; font-size: 12px; text-align: center; margin-bottom: 10px; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;">
                             ${t.historyLimit}
                         </div>
+                        
                         ${connectionHistory.length ? 
                             connectionHistory.map((entry, index, arr) => {
                                 const photoAvailable = index < 30;
@@ -3794,8 +4977,11 @@
                             }).join('') : 
                             `<div style="text-align: center; color: #777; padding: 40px 20px; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;">
                                 <i class="fas fa-inbox" style="font-size: 30px; margin-bottom: 10px; opacity: 0.5;"></i><br>
-                                ${t.emptyHistory}<br><small>${t.connectToStart}</small></div>`}
+                                ${t.emptyHistory}<br><small>${t.connectToStart}</small>
+                            </div>`}
                     </div>
+                    
+                    <!-- FOOTER con contatore -->
                     <div style="padding: 10px; background: #222; text-align: center; font-size: 12px; color: #666; border-top: 1px solid #333; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;">
                         ${connectionHistory.length === 0 ? t.zero : connectionHistory.length + ' ' + (connectionHistory.length === 1 ? t.entry : t.entries)}
                     </div>
@@ -3806,7 +4992,7 @@
             
             const modalElement = document.getElementById('historyModal');
             
-            // Aggiungi evento click sul background (fuori dal riquadro)
+            // Evento per chiudere cliccando fuori
             modalElement.addEventListener('click', function(e) {
                 if (e.target === modalElement) {
                     modalElement.remove();
@@ -3815,6 +5001,139 @@
                 }
             });
             
+            const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+            if (clearHistoryBtn) {
+                clearHistoryBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    
+                    // CREA UNA NOTIFICA CON PULSANTI SI/NO
+                    const confirmToast = document.createElement('div');
+                    confirmToast.className = 'chill-toast';
+                    confirmToast.style.background = 'linear-gradient(135deg, #dc3545 0%, #b30000 100%)';
+                    confirmToast.style.width = '380px';
+                    confirmToast.style.padding = '15px';
+                    confirmToast.style.zIndex = '100000';
+                    
+                    confirmToast.innerHTML = `
+                        <i class="fas fa-exclamation-triangle" style="color: #ffaa00; font-size: 24px;"></i>
+                        <div class="chill-toast-content">
+                            <div class="chill-toast-title" style="font-size: 16px;">🗑️ Clear History</div>
+                            <div class="chill-toast-message" style="margin: 10px 0;">Sei sicuro di voler cancellare TUTTA la cronologia?</div>
+                            <div style="font-size: 11px; color: rgba(255,255,255,0.7); margin-bottom: 8px;">
+                                <i class="fas fa-clock"></i> La notifica si chiuderà tra 5 secondi
+                            </div>
+                            <div style="display: flex; gap: 10px; margin-top: 5px;">
+                                <button id="confirmClearBtn" style="
+                                    flex: 1;
+                                    background: #dc3545;
+                                    color: white;
+                                    border: none;
+                                    padding: 8px 12px;
+                                    border-radius: 5px;
+                                    cursor: pointer;
+                                    font-size: 13px;
+                                    font-weight: bold;
+                                    transition: all 0.2s;
+                                " onmouseover="this.style.background='#c82333'" onmouseout="this.style.background='#dc3545'">
+                                    <i class="fas fa-check"></i> Sì, cancella
+                                </button>
+                                <button id="cancelClearBtn" style="
+                                    flex: 1;
+                                    background: #6c757d;
+                                    color: white;
+                                    border: none;
+                                    padding: 8px 12px;
+                                    border-radius: 5px;
+                                    cursor: pointer;
+                                    font-size: 13px;
+                                    font-weight: bold;
+                                    transition: all 0.2s;
+                                " onmouseover="this.style.background='#5a6268'" onmouseout="this.style.background='#6c757d'">
+                                    <i class="fas fa-times"></i> No
+                                </button>
+                            </div>
+                        </div>
+                        <button class="chill-toast-close" style="align-self: flex-start;">&times;</button>
+                    `;
+                    
+                    // Aggiungi al container
+                    let container = document.getElementById('chill-toast-container');
+                    if (!container) {
+                        container = document.createElement('div');
+                        container.id = 'chill-toast-container';
+                        container.className = 'chill-toast-container';
+                        document.body.appendChild(container);
+                    }
+                    container.appendChild(confirmToast);
+                    
+                    // Mostra con animazione
+                    setTimeout(() => confirmToast.classList.add('show'), 10);
+                    
+                    let autoCloseTimer;
+                    
+                    const cleanupAndClose = () => {
+                        if (autoCloseTimer) clearTimeout(autoCloseTimer);
+                        if (confirmToast.parentNode) {
+                            confirmToast.remove();
+                        }
+                    };
+                    
+                    document.getElementById('confirmClearBtn').addEventListener('click', function() {
+                        cleanupAndClose();
+                        
+                        // Pulisci SOLO la cronologia
+                        connectionHistory.length = 0;
+                        localStorage.removeItem('chilltool_history');
+                        
+                        // ✅ NON cancellare le statistiche!
+                        // localStorage.removeItem('chilltool_stats'); // COMMENTATO - IMPORTANTE!
+                        
+                        localStorage.setItem('lastUpdateTime', Math.floor(Date.now() / 1000).toString());
+                        
+                        modalElement.remove();
+                        isHistoryVisible = false;
+                        unblurToolbar();
+                        
+                        showNotification('History', '✅ Cronologia cancellata! Le statistiche rimangono.', {
+                            type: 'success',
+                            duration: 3000
+                        });
+                    });
+                    
+                    document.getElementById('cancelClearBtn').addEventListener('click', function() {
+                        cleanupAndClose();
+                    });
+                    
+                    confirmToast.querySelector('.chill-toast-close').addEventListener('click', function() {
+                        cleanupAndClose();
+                    });
+                    
+                    autoCloseTimer = setTimeout(() => {
+                        if (confirmToast.parentNode) {
+                            confirmToast.remove();
+                        }
+                    }, 5000);
+                    
+                    confirmToast.addEventListener('mouseenter', () => {
+                        if (autoCloseTimer) {
+                            clearTimeout(autoCloseTimer);
+                            autoCloseTimer = null;
+                        }
+                    });
+                    
+                    confirmToast.addEventListener('mouseleave', () => {
+                        if (!autoCloseTimer && confirmToast.parentNode) {
+                            autoCloseTimer = setTimeout(() => {
+                                if (confirmToast.parentNode) {
+                                    confirmToast.remove();
+                                }
+                            }, 5000);
+                        }
+                    });
+                });
+            }
+            
+            // Event listener per le entry della cronologia
             document.querySelectorAll('.history-entry').forEach(entry => {
                 if(entry.classList.contains('history-entry-disabled')) return;
                 entry.addEventListener('click', function() {
@@ -3851,7 +5170,7 @@
             document.body.removeChild(link);
         }
 
-                    function showScreenshot(screenshot, entry, entryIndex = null) {
+        function showScreenshot(screenshot, entry, entryIndex = null) {
             const toolbar = document.getElementById('chillToolbar');
             if (toolbar && !isMobile()) toolbar.classList.add('chill-blur');
             const lang = getLang();
@@ -3966,21 +5285,18 @@
                 }
             };
             
-            // Funzione per chiudere la modale
             function closeModal() {
                 modalElement.remove();
                 document.removeEventListener('keydown', handleKeyDown);
                 unblurToolbar();
             }
             
-            // Aggiungi evento click sul background (fuori dal riquadro)
             modalElement.addEventListener('click', function(e) {
                 if (e.target === modalElement) {
                     closeModal();
                 }
             });
             
-            // Event listener per il pulsante di chiusura
             if (closeBtn) {
                 closeBtn.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -4188,7 +5504,7 @@
             logo.addEventListener("click", () => window.open("https://discord.gg/r945xfdEWT", "_blank"));
         };
 
-const replaceLogo = () => {
+        const replaceLogo = () => {
             const logoBlock = document.querySelector('.logoBlock');
             if (logoBlock) {
                 logoBlock.outerHTML = `
@@ -4211,6 +5527,46 @@ const replaceLogo = () => {
             }
         };
 
+        // ===== FUNZIONE TOS MODAL AGGIUNTA =====
+        function showTosModal() {
+            const lang = getLang();
+            const t = translations[lang];
+            
+            const modalHTML = `
+            <div id="tosModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 99999; display: flex; justify-content: center; align-items: center;">
+                <div style="background: #111; border-radius: 10px; width: 90%; max-width: 500px; padding: 25px; border: 1px solid #333;">
+                    <h3 style="color: #fff; margin-bottom: 15px; font-size: 20px;">Terms of Service</h3>
+                    <div style="color: #ddd; margin-bottom: 20px; max-height: 300px; overflow-y: auto; font-size: 14px; line-height: 1.6;">
+                        <p>By using ChillTools you agree to the following terms:</p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>This software is for educational and research purposes only</li>
+                            <li>You must comply with all applicable laws and regulations</li>
+                            <li>You may not use it for harassment or illegal activities</li>
+                            <li>The developers assume no responsibility for misuse</li>
+                            <li>All data remains on your device and is not collected externally</li>
+                        </ul>
+                        <p style="margin-top: 15px;">Full terms available at: <a href="https://chilltools.it/tos" target="_blank" style="color: #4dabf7;">chilltools.it/tos</a></p>
+                    </div>
+                    <button id="acceptTosBtn" style="background: #007bff; color: white; border: none; padding: 12px; border-radius: 5px; width: 100%; cursor: pointer; font-size: 16px; transition: background 0.2s;"
+                            onmouseover="this.style.background='#0069d9'" onmouseout="this.style.background='#007bff'">
+                        I Accept
+                    </button>
+                </div>
+            </div>`;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            
+            document.getElementById('acceptTosBtn').addEventListener('click', () => {
+                localStorage.setItem('tosAccepted', 'true');
+                document.getElementById('tosModal').remove();
+            });
+            
+            document.getElementById('tosModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.remove();
+                }
+            });
+        }
 
         const init = () => {
             const checkInterval = setInterval(() => {
@@ -4260,13 +5616,13 @@ const replaceLogo = () => {
         }
 
         if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function() {
-            updateToolbarVisibility();
-            
-            window.addEventListener('popstate', updateToolbarVisibility);
+            document.addEventListener('DOMContentLoaded', function() {
+                updateToolbarVisibility();
+                
+                window.addEventListener('popstate', updateToolbarVisibility);
 
-            const observer = new MutationObserver(updateToolbarVisibility);
-            observer.observe(document.documentElement, { childList: true, subtree: true });
+                const observer = new MutationObserver(updateToolbarVisibility);
+                observer.observe(document.documentElement, { childList: true, subtree: true });
                 init();
                 checkAndShowTos();
             });
@@ -4501,6 +5857,7 @@ const replaceLogo = () => {
         
         disconnectObserver.observe(document.body, { childList: true, subtree: true });
         setInterval(updatePauseButtonState, 1000);
+        
         function formatTime(seconds) {
             const hours = Math.floor(seconds / 3600);
             const minutes = Math.floor((seconds % 3600) / 60);
@@ -4880,12 +6237,6 @@ const replaceLogo = () => {
         
         updateTimeElapsed();
         
-        document.addEventListener('click', function(e) {
-            if (e.target && e.target.id === 'showStatisticsBtn') {
-                showStatistics();
-            }
-        });
-        
         // if you see this message, please donate to support the development of the extension, thx! (Open ticket on discord or use funding.yml)
         // to check if your usage falls under prohibited activities, please visit chilltools.it/legal
-        })();
+    })();
